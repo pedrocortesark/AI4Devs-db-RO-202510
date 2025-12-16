@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
@@ -14,44 +11,405 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum EmployeeRole {
+  ADMIN
+  RECRUITER
+  INTERVIEWER
+  MANAGER
+
+  @@map("employee_role")
+}
+
+enum PositionStatus {
+  DRAFT
+  OPEN
+  CLOSED
+  ON_HOLD
+
+  @@map("position_status")
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  INTERNSHIP
+
+  @@map("employment_type")
+}
+
+enum ApplicationStatus {
+  PENDING
+  REVIEWING
+  INTERVIEWING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+
+  @@map("application_status")
+}
+
+enum InterviewResult {
+  PENDING
+  PASSED
+  FAILED
+  NO_SHOW
+
+  @@map("interview_result")
+}
+
+enum FileType {
+  PDF
+  DOCX
+  DOC
+  TXT
+  RTF
+
+  @@map("file_type")
+}
+
+enum CompanySize {
+  STARTUP
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+
+  @@map("company_size")
+}
+
+enum ApplicationSource {
+  WEBSITE
+  LINKEDIN
+  INDEED
+  GLASSDOOR
+  REFERRAL
+  RECRUITER
+  CAREER_FAIR
+  OTHER
+
+  @@map("application_source")
+}
+
+enum EducationLevel {
+  HIGH_SCHOOL
+  ASSOCIATE
+  BACHELOR
+  MASTER
+  PHD
+  CERTIFICATE
+  BOOTCAMP
+
+  @@map("education_level")
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+/// Represents industries/sectors for company categorization
+model Industry {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  companies Company[]
+
+  @@index([name])
+  @@map("industry")
+}
+
+/// Represents a company that posts job positions
+model Company {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique @db.VarChar(255)
+  description String?      @db.Text
+  website     String?      @db.VarChar(255)
+  industryId  Int?         @map("industry_id")
+  size        CompanySize?
+  logoUrl     String?      @map("logo_url") @db.VarChar(500)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  industry       Industry?       @relation(fields: [industryId], references: [id], onDelete: SetNull)
+  employees      Employee[]
+  positions      Position[]
+  interviewFlows InterviewFlow[]
+
+  @@index([industryId])
+  @@map("company")
+}
+
+/// Represents employees/recruiters of a company
+model Employee {
+  id         Int          @id @default(autoincrement())
+  companyId  Int          @map("company_id")
+  name       String       @db.VarChar(255)
+  email      String       @unique @db.VarChar(255)
+  phone      String?      @db.VarChar(20)
+  jobTitle   String?      @map("job_title") @db.VarChar(100)
+  department String?      @db.VarChar(100)
+  role       EmployeeRole
+  isActive   Boolean      @default(true) @map("is_active")
+  createdAt  DateTime     @default(now()) @map("created_at")
+  updatedAt  DateTime     @updatedAt @map("updated_at")
+
+  company    Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  interviews Interview[]
+
+  @@index([companyId])
+  @@index([email])
+  @@index([companyId, role, isActive])
+  @@map("employee")
+}
+
+/// Represents types of interviews (e.g., Technical, HR, Cultural Fit)
+model InterviewType {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  interviewSteps InterviewStep[]
+
+  @@index([name])
+  @@map("interview_type")
+}
+
+/// Represents a configurable interview flow/process
+model InterviewFlow {
+  id          Int      @id @default(autoincrement())
+  companyId   Int?     @map("company_id")
+  description String   @db.VarChar(500)
+  isTemplate  Boolean  @default(false) @map("is_template")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  company        Company?        @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  positions      Position[]
+  interviewSteps InterviewStep[]
+
+  @@index([companyId])
+  @@index([isTemplate])
+  @@map("interview_flow")
+}
+
+/// Represents individual steps within an interview flow
+model InterviewStep {
+  id              Int      @id @default(autoincrement())
+  interviewFlowId Int      @map("interview_flow_id")
+  interviewTypeId Int      @map("interview_type_id")
+  name            String   @db.VarChar(255)
+  orderIndex      Int      @map("order_index")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  interviewFlow InterviewFlow @relation(fields: [interviewFlowId], references: [id], onDelete: Cascade)
+  interviewType InterviewType @relation(fields: [interviewTypeId], references: [id], onDelete: Restrict)
+  interviews    Interview[]
+
+  @@unique([interviewFlowId, orderIndex])
+  @@index([interviewFlowId])
+  @@index([interviewTypeId])
+  @@map("interview_step")
+}
+
+/// Represents locations where positions are available
+model Location {
+  id        Int      @id @default(autoincrement())
+  city      String   @db.VarChar(100)
+  state     String?  @db.VarChar(100)
+  country   String   @db.VarChar(100)
+  isRemote  Boolean  @default(false) @map("is_remote")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  positions Position[]
+
+  @@unique([city, state, country, isRemote])
+  @@index([country])
+  @@index([isRemote])
+  @@map("location")
+}
+
+/// Represents job positions posted by companies
+model Position {
+  id                  Int            @id @default(autoincrement())
+  companyId           Int            @map("company_id")
+  interviewFlowId     Int            @map("interview_flow_id")
+  locationId          Int?           @map("location_id")
+  title               String         @db.VarChar(255)
+  status              PositionStatus @default(DRAFT)
+  isVisible           Boolean        @default(true) @map("is_visible")
+  vacancies           Int            @default(1)
+  filled              Int            @default(0)
+  jobDescription      String?        @map("job_description") @db.Text
+  requirements        String?        @db.Text
+  responsibilities    String?        @db.Text
+  salaryMin           Decimal?       @map("salary_min") @db.Decimal(12, 2)
+  salaryMax           Decimal?       @map("salary_max") @db.Decimal(12, 2)
+  employmentType      EmploymentType @map("employment_type")
+  benefits            String?        @db.Text
+  applicationDeadline DateTime?      @map("application_deadline")
+  contactInfo         String?        @map("contact_info") @db.VarChar(500)
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+  deletedAt           DateTime?      @map("deleted_at")
+
+  company       Company       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  interviewFlow InterviewFlow @relation(fields: [interviewFlowId], references: [id], onDelete: Restrict)
+  location      Location?     @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  applications  Application[]
+
+  @@index([companyId])
+  @@index([interviewFlowId])
+  @@index([locationId])
+  @@index([status])
+  @@index([applicationDeadline])
+  @@index([deletedAt])
+  @@index([companyId, status, deletedAt])
+  @@index([status, employmentType])
+  @@map("position")
+}
+
+/// Represents job candidates
 model Candidate {
-  id                Int               @id @default(autoincrement())
-  firstName         String            @db.VarChar(100)
-  lastName          String            @db.VarChar(100)
-  email             String            @unique @db.VarChar(255)
-  phone             String?           @db.VarChar(15)
-  address           String?           @db.VarChar(100)
-  educations        Education[]
-  workExperiences   WorkExperience[]
-  resumes           Resume[]
+  id                Int      @id @default(autoincrement())
+  firstName         String   @map("first_name") @db.VarChar(100)
+  lastName          String   @map("last_name") @db.VarChar(100)
+  email             String   @unique @db.VarChar(255)
+  phone             String?  @db.VarChar(20)
+  address           String?  @db.VarChar(255)
+  linkedinUrl       String?  @map("linkedin_url") @db.VarChar(255)
+  portfolioUrl      String?  @map("portfolio_url") @db.VarChar(255)
+  currentJobTitle   String?  @map("current_job_title") @db.VarChar(255)
+  yearsOfExperience Int?     @map("years_of_experience")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  educations      Education[]
+  workExperiences WorkExperience[]
+  resumes         Resume[]
+  applications    Application[]
+
+  @@index([lastName, firstName])
+  @@map("candidate")
 }
 
+/// Represents educational background of candidates
 model Education {
-  id            Int       @id @default(autoincrement())
-  institution   String    @db.VarChar(100)
-  title         String    @db.VarChar(250)
-  startDate     DateTime
-  endDate       DateTime?
-  candidateId   Int
-  candidate     Candidate @relation(fields: [candidateId], references: [id])
+  id          Int            @id @default(autoincrement())
+  institution String         @db.VarChar(255)
+  level       EducationLevel
+  degree      String         @db.VarChar(255)
+  startDate   DateTime       @map("start_date")
+  endDate     DateTime?      @map("end_date")
+  candidateId Int            @map("candidate_id")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@index([institution])
+  @@map("education")
 }
 
+/// Represents work experience of candidates
 model WorkExperience {
   id          Int       @id @default(autoincrement())
-  company     String    @db.VarChar(100)
-  position    String    @db.VarChar(100)
-  description String?   @db.VarChar(200)
-  startDate   DateTime
-  endDate     DateTime?
-  candidateId Int
-  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  company     String    @db.VarChar(255)
+  position    String    @db.VarChar(255)
+  description String?   @db.Text
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime? @map("end_date")
+  candidateId Int       @map("candidate_id")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  candidate Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@index([candidateId])
+  @@index([company])
+  @@map("work_experience")
 }
 
+/// Represents uploaded resumes/CVs
 model Resume {
-  id          Int       @id @default(autoincrement())
-  filePath    String    @db.VarChar(500)
-  fileType    String    @db.VarChar(50)
-  uploadDate  DateTime
-  candidateId Int
-  candidate   Candidate @relation(fields: [candidateId], references: [id])
+  id            Int      @id @default(autoincrement())
+  filePath      String   @map("file_path") @db.VarChar(500)
+  fileType      FileType @map("file_type")
+  uploadDate    DateTime @map("upload_date")
+  candidateId   Int      @map("candidate_id")
+  applicationId Int?     @map("application_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  candidate   Candidate    @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  application Application? @relation(fields: [applicationId], references: [id], onDelete: SetNull)
+
+  @@index([candidateId])
+  @@index([applicationId])
+  @@map("resume")
+}
+
+/// Represents candidate applications to job positions
+model Application {
+  id              Int                @id @default(autoincrement())
+  positionId      Int                @map("position_id")
+  candidateId     Int                @map("candidate_id")
+  applicationDate DateTime           @default(now()) @map("application_date")
+  status          ApplicationStatus  @default(PENDING)
+  source          ApplicationSource? @default(WEBSITE)
+  notes           String?            @db.Text
+  createdAt       DateTime           @default(now()) @map("created_at")
+  updatedAt       DateTime           @updatedAt @map("updated_at")
+  deletedAt       DateTime?          @map("deleted_at")
+
+  position   Position    @relation(fields: [positionId], references: [id], onDelete: Cascade)
+  candidate  Candidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  interviews Interview[]
+  resumes    Resume[]
+
+  @@unique([positionId, candidateId])
+  @@index([positionId])
+  @@index([candidateId])
+  @@index([status])
+  @@index([deletedAt])
+  @@index([applicationDate])
+  @@map("application")
+}
+
+/// Represents individual interviews conducted during the application process
+model Interview {
+  id              Int             @id @default(autoincrement())
+  applicationId   Int             @map("application_id")
+  interviewStepId Int             @map("interview_step_id")
+  employeeId      Int             @map("employee_id")
+  interviewDate   DateTime        @map("interview_date")
+  durationMinutes Int?            @map("duration_minutes")
+  location        String?         @db.VarChar(255)
+  meetingUrl      String?         @map("meeting_url") @db.VarChar(500)
+  result          InterviewResult @default(PENDING)
+  score           Int?            @db.SmallInt
+  notes           String?         @db.Text
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  application   Application   @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  interviewStep InterviewStep @relation(fields: [interviewStepId], references: [id], onDelete: Restrict)
+  employee      Employee      @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+
+  @@index([applicationId])
+  @@index([interviewStepId])
+  @@index([employeeId])
+  @@index([interviewDate])
+  @@index([result])
+  @@map("interview")
 }
