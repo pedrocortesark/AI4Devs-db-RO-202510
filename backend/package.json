@@ -7,10 +7,20 @@
         "start": "node dist/index.js",
         "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
         "build": "tsc",
-        "prisma:init": "npx prisma init",
-        "prisma:generate": "npx prisma generate",
-        "start:prod": "npm run build && npm start",
-        "test": "jest"
+        "test": "jest",
+        "db:generate": "prisma generate",
+        "db:migrate": "prisma migrate dev",
+        "db:migrate:deploy": "prisma migrate deploy",
+        "db:seed": "prisma db seed",
+        "db:reset": "prisma migrate reset --force",
+        "db:studio": "prisma studio",
+        "db:push": "prisma db push",
+        "db:validate": "prisma validate",
+        "db:format": "prisma format",
+        "db:setup": "npm run db:generate && npm run db:migrate && npm run db:seed",
+        "verify": "ts-node --transpile-only verify-setup.ts",
+        "validate:env": "node scripts/validate-env.js",
+        "start:prod": "npm run build && npm start"
     },
     "prisma": {
         "seed": "ts-node --transpile-only prisma/seed.ts"

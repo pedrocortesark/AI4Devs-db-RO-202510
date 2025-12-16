@@ -278,3 +278,47 @@ Creación de script seed.ts idempotente con datos completos (industrias, empresa
 **Resumen de la Respuesta/Acción:**
 Correcciones aplicadas: 1) Actualización de DATABASE_URL con credenciales correctas (LTIdbUser/LTIdb), 2) Reemplazo de campo `feedback` por `notes` en Interview, 3) Implementación de función helper findStep() con validación de undefined y lógica de skip segura. Seeding completado exitosamente con 135 registros: 10 industries, 5 interview types, 5 locations, 3 companies, 15 employees, 3 interview flows, 10 interview steps, 5 positions, 10 candidates, 15 education records, 20 work experiences, 10 resumes, 15 applications, 9 interviews (1 saltada por falta de datos). Verificación ejecutada: 5 queries complejas pasadas, 6 validaciones de integridad confirmadas, Prisma Studio iniciado en http://localhost:5555.
 ---
+
+## 008 - Verificación Final y Organización de Documentación (FASE 5)
+**Fecha:** 2025-12-16 15:00
+**Prompt Original:**
+> Actúa como un Senior QA Engineer y Documentalist experto.
+> 
+> Hemos llegado a la **FASE 5** (Finalización). Antes de empezar, es **OBLIGATORIO** seguir el protocolo de `agents.md`.
+> 
+> **Instrucciones de Ejecución:**
+> 
+> 1.  **Logging:**
+>     * Lee `agents.md`.
+>     * Registra este prompt en `prompts-log.md` con su ID incremental.
+> 
+> 2.  **Organización de Documentación (Housekeeping):**
+>     * Sigue las mejores prácticas de estructura de proyectos.
+>     * Crea una carpeta `docs/` en la **raíz del proyecto** (si no existe).
+>     * Mueve/Organiza los archivos generados anteriormente:
+>         * Mueve `planning.md` a `docs/planning.md`.
+>         * Mueve `prisma/ERD-LTI.md` a `docs/database/ERD.md` (crea la subcarpeta si es necesario).
+>         * *Nota:* Mantén `agents.md` y `prompts-log.md` en la raíz, ya que son archivos de configuración del asistente.
+> 
+> 3.  **Generación de Consultas de Prueba (Queries):**
+>     * Necesito verificar que el modelo ATS soporta operaciones complejas del mundo real.
+>     * Genera un set de consultas tanto en **SQL Puro** como en **Prisma Client (TypeScript)** para los siguientes casos:
+>         * **Caso A:** "Obtener el historial completo de un candidato (Aplicaciones + Pasos de Entrevista + Resultados + Comentarios del entrevistador)".
+>         * **Caso B:** "Estadísticas: Contar cuántos candidatos hay en cada estado ('PENDING', 'HIRED') por cada Posición activa".
+>         * **Caso C:** "Buscar candidatos que hayan reprobado una entrevista técnica (score < 5) en el último mes".
+> 
+> 4.  **Creación del Reporte:**
+>     * Crea un nuevo archivo llamado `docs/verification-report.md`.
+>     * Este archivo debe contener:
+>         * Los snippets de código de las consultas (SQL y Prisma) generadas en el paso 3.
+>         * Una breve explicación de qué valida cada consulta.
+>         * Un espacio (checklist) para marcar si la prueba fue exitosa.
+> 
+> 5.  **Actualización del Planning:**
+>     * Actualiza `docs/planning.md` (recuerda que acabas de moverlo) con el checklist de la Fase 5.
+> 
+> Inicia el protocolo `agents.md` ahora. Primero organiza los archivos y confirma cuando la carpeta `docs` esté lista antes de generar las queries.
+
+**Resumen de la Respuesta/Acción:**
+Reorganización completa de documentación: creación de estructura docs/ y docs/database/, migración de planning.md y ERD-LTI.md, generación de 3 consultas complejas (SQL + Prisma) para validación del modelo (historial de candidato, estadísticas por posición, búsqueda con filtros), creación de verification-report.md con casos de prueba ejecutables, y actualización de planning.md con checklist de FASE 5.
+---

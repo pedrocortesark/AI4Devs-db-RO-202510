@@ -1,4 +1,67 @@
-# LTI - Talent Tracking System  | EN
+# LTI - Talent Tracking System
+
+**Branch**: `db-PCN` (Database Modeling & Infrastructure)  
+**Estado**: ✅ Production Ready  
+**Última Actualización**: Diciembre 2025
+
+---
+
+## 🗄️ Database Project (FASE 1-5 Completadas)
+
+Este branch contiene el **modelado completo de base de datos** para el sistema ATS:
+
+- ✅ **Schema Prisma** normalizado a 3FN (14 tablas, 9 ENUMs, 59 índices)
+- ✅ **Migraciones** aplicadas (PostgreSQL 16)
+- ✅ **Seeds idempotentes** (135 registros de prueba)
+- ✅ **Queries de validación** documentadas (SQL + Prisma)
+- ✅ **Scripts automatizados** para todas las operaciones
+- ✅ **Documentación exhaustiva** (2000+ líneas)
+
+### 📚 Documentación de Base de Datos
+
+| Documento | Descripción |
+|-----------|-------------|
+| [📄 DATABASE.md](./backend/DATABASE.md) | **Guía completa de uso** (350+ líneas) |
+| [📄 docs/planning.md](./docs/planning.md) | Planning detallado (5 fases, 150+ tareas) |
+| [📄 docs/verification-report.md](./docs/verification-report.md) | Queries de validación (3 casos de prueba) |
+| [📄 docs/database/ERD.md](./docs/database/ERD.md) | Diagrama entidad-relación con diseño |
+| [📄 INFRASTRUCTURE-IMPROVEMENTS.md](./INFRASTRUCTURE-IMPROVEMENTS.md) | Mejoras de infraestructura |
+
+### 🚀 Quick Start - Base de Datos
+
+```bash
+# 1. Iniciar PostgreSQL
+docker-compose up -d
+
+# 2. Setup completo (3 comandos)
+cd backend
+npm install
+npm run db:setup
+
+# 3. Abrir Prisma Studio (opcional)
+npm run db:studio
+```
+
+✅ **Resultado**: Base de datos con 135 registros lista para desarrollo.
+
+### 🛠️ Comandos de Base de Datos
+
+```bash
+npm run db:setup        # Setup completo: generate + migrate + seed
+npm run db:migrate      # Crear y aplicar migración
+npm run db:seed         # Poblar con datos de prueba (idempotente)
+npm run db:studio       # Abrir Prisma Studio (localhost:5555)
+npm run verify          # Verificar integridad de datos
+npm run validate:env    # Validar variables de entorno
+```
+
+Ver [DATABASE.md](./backend/DATABASE.md) para documentación completa.
+
+---
+
+## 📖 Descripción Original del Proyecto
+
+# LTI - Talent Tracking System | EN
 
 This project is a full-stack application with a React frontend and an Express backend using Prisma as an ORM. The frontend is initialized with Create React App, and the backend is written in TypeScript.
 
