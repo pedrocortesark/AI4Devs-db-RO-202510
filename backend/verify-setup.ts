@@ -88,7 +88,7 @@ async function main()
                 console.log(`      - Fecha: ${interview.interviewDate.toLocaleDateString()}`);
                 console.log(`      - Resultado: ${interview.result}`);
                 console.log(`      - Score: ${interview.score ?? 'N/A'}`);
-                console.log(`      - Feedback: ${interview.feedback ?? 'N/A'}\n`);
+                console.log(`      - Notes: ${interview.notes ?? 'N/A'}\n`);
             });
         }
 
@@ -148,7 +148,7 @@ async function main()
             console.log(`      - Título: ${position.title}`);
             console.log(`      - Empresa: ${position.company.name} (${position.company.size})`);
             console.log(`      - Industria: ${position.company.industry?.name ?? 'N/A'}`);
-            console.log(`      - Ubicación: ${position.location.city}, ${position.location.country} ${position.location.isRemote ? '(Remote)' : ''}`);
+            console.log(`      - Ubicación: ${position.location ? `${position.location.city}, ${position.location.country} ${position.location.isRemote ? '(Remote)' : ''}` : 'N/A'}`);
             console.log(`      - Tipo: ${position.employmentType}`);
             console.log(`      - Salario: €${position.salaryMin?.toLocaleString() ?? 'N/A'} - €${position.salaryMax?.toLocaleString() ?? 'N/A'}`);
             console.log(`      - Vacantes: ${position.filled}/${position.vacancies}`);

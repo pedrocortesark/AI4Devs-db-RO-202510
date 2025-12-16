@@ -23,16 +23,16 @@ Se han implementado mejoras significativas en la infraestructura de base de dato
 
 **ANTES** (`.env` - valores hardcodeados):
 ```env
-DATABASE_URL="postgresql://LTIdbUser:D1ymf8wyQEGthFR1E9xhCq@127.0.0.1:5432/LTIdb"
+DATABASE_URL="postgresql://<user>:<password>@127.0.0.1:5432/<dbname>"
 ```
 
 **DESPUÉS** (`.env` - variables interpoladas):
 ```env
 DB_HOST=localhost
 DB_PORT=5432
-DB_USER=LTIdbUser
-DB_PASSWORD=D1ymf8wyQEGthFR1E9xhCq
-DB_NAME=LTIdb
+DB_USER=<your_db_user>
+DB_PASSWORD=<your_password>
+DB_NAME=<your_db_name>
 
 DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public"
 ```

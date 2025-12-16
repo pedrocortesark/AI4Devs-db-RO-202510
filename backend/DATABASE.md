@@ -32,9 +32,9 @@ El archivo `.env` en la raíz del proyecto ya está configurado con variables in
 # Database Configuration
 DB_HOST=localhost
 DB_PORT=5432
-DB_USER=LTIdbUser
-DB_PASSWORD=D1ymf8wyQEGthFR1E9xhCq
-DB_NAME=LTIdb
+DB_USER=your_db_user           # ⚠️ DEV ONLY - change in production
+DB_PASSWORD=your_secure_password  # ⚠️ DEV ONLY - never commit real passwords
+DB_NAME=your_db_name           # ⚠️ DEV ONLY
 
 # Prisma Connection URL (usa las variables de arriba)
 DATABASE_URL="postgresql://${DB_USER}:${DB_PASSWORD}@${DB_HOST}:${DB_PORT}/${DB_NAME}?schema=public"

@@ -1,7 +1,6 @@
 # Ignore in all directories
 **/.DS_Store
-#**/.env
-**/.env.example
+**/.env
 **/node_modules
 **/prompts_master.md
 
